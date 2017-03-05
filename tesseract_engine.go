@@ -16,6 +16,7 @@ type TesseractEngine struct {
 type TesseractEngineArgs struct {
 	configVars  map[string]string `json:"config_vars"`
 	pageSegMode string            `json:"psm"`
+	ocrEngineMode string          `json:"oem"`
 	lang        string            `json:"lang"`
 }
 
@@ -59,6 +60,15 @@ func NewTesseractEngineArgs(ocrRequest OcrRequest) (*TesseractEngineArgs, error)
 		engineArgs.pageSegMode = pageSegModeStr
 	}
 
+	ocrEngineMode := ocrRequest.EngineArgs["oem"]
+	if ocrEngineMode != nil {
+		ocrEngineModeStr, ok := ocrEngineMode.(string)
+		if !ok {
+			return nil, fmt.Errorf("Could not convert oem into string: %v", ocrEngineMode)
+		}
+		engineArgs.ocrEngineMode = ocrEngineModeStr
+	}
+
 	// language
 	lang := ocrRequest.EngineArgs["lang"]
 	if lang != nil {
@@ -85,6 +95,10 @@ func (t TesseractEngineArgs) Export() []string {
 	if t.pageSegMode != "" {
 		result = append(result, "-psm")
 		result = append(result, t.pageSegMode)
+	}
+	if t.ocrEngineMode != "" {
+		result = append(result, "-oem")
+		result = append(result, t.ocrEngineMode)
 	}
 	if t.lang != "" {
 		result = append(result, "-l")
