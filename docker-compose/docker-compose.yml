@@ -1,21 +1,26 @@
-version: '2'
+version: '2.1'
 
 services:
 # Start messaging broker
   rabbitmq:
     image: rabbitmq:3.6.5-management
+    container_name: open-ocr-mq
     ports:
-      - "5672:5672"
       - "15672:15672" #Management Server
     environment:
       RABBITMQ_DEFAULT_USER: "admin"
       RABBITMQ_DEFAULT_PASS: "Phaish9ohbaidei6oole"
+    healthcheck:
+      test: "nc -z localhost 5672"
 
   # Start transformation worker
   strokewidthtransform:
-    image: tleyden5iwx/open-ocr-preprocessor
+    image: open-ocr-preprocessor:build
+    build:
+      context: ./open-ocr-preprocessor
+    container_name: open-ocr-preprocessor
     volumes:
-      - ./scripts/:/opt/open-ocr/
+      - ./scripts/:/opt/open-ocr/:ro
     dns: ["8.8.8.8"]
     depends_on:
       - rabbitmq
@@ -23,9 +28,12 @@ services:
 
   # Start OCR worker
   openocrworker:
-    image: tleyden5iwx/open-ocr
+    image: open-ocr:build
+    build:
+      context: ./open-ocr
+    container_name: open-ocr-worker
     volumes:
-      - ./scripts/:/opt/open-ocr/
+      - ./scripts/:/opt/open-ocr/:ro
     dns: ["8.8.8.8"]
     depends_on:
       - rabbitmq
@@ -33,9 +41,12 @@ services:
 
   # Start http server
   openocr:
-    image: tleyden5iwx/open-ocr
+    image: open-ocr
+    build:
+      context: ./open-ocr
+    container_name: open-ocr-httpd
     volumes:
-      - ./scripts/:/opt/open-ocr/
+      - ./scripts/:/opt/open-ocr/:ro
     ports:
       - "9292:9292"
     dns: ["8.8.8.8"]
