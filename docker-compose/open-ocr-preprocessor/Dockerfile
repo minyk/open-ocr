@@ -1,4 +1,4 @@
-FROM open-ocr:build
+FROM open-ocr:4.00alpha
 
 # Get OpenCV libraries.
 RUN apt-get -q -y install \
@@ -22,4 +22,4 @@ RUN cd /opt/DetectText && g++ -o DetectText TextDetection.cpp FeaturesMain.cpp -
 RUN cd /opt/DetectText && cp DetectText /usr/local/bin
 
 # build open-ocr-preprocessor binary and copy it to /usr/bin
-RUN cd $GOPATH/src/github.com/tleyden/open-ocr/cli-preprocessor && go build -v -o open-ocr-preprocessor && cp open-ocr-preprocessor /usr/bin
+RUN cd $GOPATH/src/github.com/minyk/open-ocr/cli-preprocessor && go build -v -o open-ocr-preprocessor && cp open-ocr-preprocessor /usr/bin

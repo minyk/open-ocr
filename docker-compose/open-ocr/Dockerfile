@@ -5,7 +5,7 @@ ENV GOPATH /opt/go
 # Get dependencies
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
-RUN apt-get update
+RUN apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:alex-p/tesseract-ocr && apt-get update
 
 RUN apt-get install -y \
   git \
@@ -17,7 +17,7 @@ RUN apt-get install -y \
 # Get tesseract-ocr packages
 RUN apt-get install -y \
   libleptonica-dev \
-  libtesseract3 \
+  libtesseract4 \
   libtesseract-dev \
   tesseract-ocr
 
@@ -59,16 +59,19 @@ RUN apt-get install -y \
 # In theory, should be able to set export TESSDATA_PREFIX=/usr/share/tesseract-ocr/,
 # but when I tried I still got error: Error opening data file /usr/local/share/tessdata/eng.traineddata
 # Workaround: just copy the data to where it expects
-RUN mkdir -p /usr/local/share/tessdata/ && \
-    cp -R /usr/share/tesseract-ocr/tessdata/* /usr/local/share/tessdata/
+#RUN mkdir -p /usr/local/share/tessdata/ && \
+#    cp -R /usr/share/tesseract-ocr/tessdata/* /usr/local/share/tessdata/
 
 RUN mkdir -p $GOPATH
 
 # go get open-ocr
-RUN go get -u -v -t github.com/tleyden/open-ocr
+RUN go get -u -v -t github.com/minyk/open-ocr
+
+# Change to feature/tesseract4.00alpha brance
+RUN cd $GOPATH/src/github.com/minyk/open-ocr && git checkout feature/tesseract4.00alpha
 
 # build open-ocr-httpd binary and copy it to /usr/bin
-RUN cd $GOPATH/src/github.com/tleyden/open-ocr/cli-httpd && go build -v -o open-ocr-httpd && cp open-ocr-httpd /usr/bin
+RUN cd $GOPATH/src/github.com/minyk/open-ocr/cli-httpd && go build -v -o open-ocr-httpd && cp open-ocr-httpd /usr/bin
 
 # build open-ocr-worker binary and copy it to /usr/bin
-RUN cd $GOPATH/src/github.com/tleyden/open-ocr/cli-worker && go build -v -o open-ocr-worker && cp open-ocr-worker /usr/bin
+RUN cd $GOPATH/src/github.com/minyk/open-ocr/cli-worker && go build -v -o open-ocr-worker && cp open-ocr-worker /usr/bin

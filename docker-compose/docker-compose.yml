@@ -15,7 +15,7 @@ services:
 
   # Start transformation worker
   strokewidthtransform:
-    image: open-ocr-preprocessor:build
+    image: open-ocr-preprocessor:4.00alpha
     build:
       context: ./open-ocr-preprocessor
     container_name: open-ocr-preprocessor
@@ -29,7 +29,7 @@ services:
 
   # Start OCR worker
   openocrworker:
-    image: open-ocr:build
+    image: open-ocr:4.00alpha
     build:
       context: ./open-ocr
     container_name: open-ocr-worker
@@ -42,7 +42,7 @@ services:
 
   # Start http server
   openocr:
-    image: open-ocr:build
+    image: open-ocr:4.00alpha
     build:
       context: ./open-ocr
     container_name: open-ocr-httpd
